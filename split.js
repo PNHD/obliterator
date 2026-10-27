@@ -17,8 +17,10 @@ function makeGlobal(pattern) {
 
   if (pattern.multiline) flags += 'm';
   if (pattern.ignoreCase) flags += 'i';
+  if (pattern.dotAll) flags += 's';
   if (pattern.sticky) flags += 'y';
   if (pattern.unicode) flags += 'u';
+  if (pattern.unicodeSets) flags += 'v';
 
   return new RegExp(pattern.source, flags);
 }

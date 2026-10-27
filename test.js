@@ -660,6 +660,34 @@ describe('#.range', function () {
 });
 
 describe('#.split', function () {
+  it('should preserve dotAll matching without changing the caller pattern.', function () {
+    ['s', 'gs', 'ims'].forEach(function (flags) {
+      var pattern = new RegExp('.', flags),
+        string = 'a\nb\r\nc\u2028d\u2029';
+
+      pattern.lastIndex = 2;
+      assert.deepEqual(lib.take(lib.split(pattern, string)), string.split(pattern));
+      assert.strictEqual(pattern.lastIndex, 2);
+      assert.strictEqual(pattern.flags, flags);
+    });
+
+    assert.deepEqual(lib.take(lib.split(/./, 'a\nb')), ['', '\n', '']);
+  });
+
+  it('should preserve Unicode set matching when supported.', function () {
+    if (!('unicodeSets' in RegExp.prototype)) this.skip();
+
+    ['v', 'gv'].forEach(function (flags) {
+      var pattern = new RegExp('[\\p{ASCII}&&\\p{Letter}]', flags),
+        string = 'A1\u00e9B';
+
+      pattern.lastIndex = 1;
+      assert.deepEqual(lib.take(lib.split(pattern, string)), string.split(pattern));
+      assert.strictEqual(pattern.lastIndex, 1);
+      assert.strictEqual(pattern.flags, flags);
+    });
+  });
+
   it('should throw when given invalid arguments.', function () {
     assert.throws(function () {
       lib.split(null);
